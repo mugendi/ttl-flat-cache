@@ -55,33 +55,72 @@ class Cache {
 
     // loads the cache, if one does not exists for the given
     this.defaultTTL = isNaN(Number(ttl)) ? null : Number(ttl);
+    
     this.cache = flatCache.load(ns, dir);
+
+    this.getKey = this.get;
+    this.setKey = this.set;
+    this.removeKey = this.del;
+    this.clearAll = this.cache.clearAll;
+    this.clearCacheById = this.cache.clearCacheById;
   }
 
-  invalidateKey(key) {
+  __is_expired(expires, returnTTL = false) {
+    let exp, now;
+
+    if (expires) {
+      exp = dayjs(expires);
+      now = dayjs();
+
+      if (returnTTL) {
+        return dayjs.duration(exp.diff(now)).humanize(true);
+      }
+
+      return now.isAfter(exp);
+    }
+
+    return false;
+  }
+
+  __invadidate_key(key) {
     aproba("S", arguments);
 
     //
     let data = this.cache.getKey(key);
 
     if (data && data.expires) {
-      // let {expires} = data.expires;
-      let expires = dayjs(data.expires),
-        now = dayjs();
       // check if time has expired
-      if (now.isAfter(expires)) {
+      if (this.__is_expired(data.expires)) {
         // remove key
         this.cache.removeKey(key);
         return null;
       } else {
-        return dayjs.duration(expires.diff(now)).humanize(true);
+        let resp = this.__is_expired(data.expires, true);
+        return resp ? resp : null;
       }
     }
   }
 
+  all() {
+    let data = this.cache.all();
+
+    for (let key in data) {
+      if (this.__is_expired(data.expires)) {
+        data[key] = null;
+        this.cache.removeKey(key);
+      } else {
+        data[key] = data[key].value;
+      }
+    }
+
+    console.log(data);
+
+    return data;
+  }
+
   get(key) {
     aproba("S", arguments);
-    this.invalidateKey(key);
+    this.__invadidate_key(key);
 
     let data = this.cache.getKey(key);
 
@@ -99,7 +138,7 @@ class Cache {
 
   ttl(key) {
     aproba("S", arguments);
-    return { key, expires: this.invalidateKey(key) };
+    return { key, expires: this.__invadidate_key(key) };
   }
 
   set(key, value, ttl) {
