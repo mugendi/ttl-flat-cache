@@ -16,7 +16,7 @@ const cacheOpts = {
   // namespace to use
   ns: "shorticle-cache",
   // time to live
-  ttl: 3600 * 24,
+  // ttl: 3600 * 24,
 //   dir: '/Directory-To-Save-Data'
 };
 
@@ -25,7 +25,7 @@ const cache = require(".")(cacheOpts);
 let key = "test-key",
   value = {tyope:"Object", name:"Some Fancy Object to cache"};
 
-cache.set(key, value, 30);
+cache.set(key, value, 20);
 
 console.log(cache.ttl(key));
 console.log(cache.get(key));

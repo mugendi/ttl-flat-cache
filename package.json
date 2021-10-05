@@ -1,6 +1,6 @@
 {
   "name": "ttl-flat-cache",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "flat-cache with a ttl option",
   "main": "index.js",
   "scripts": {
@@ -17,9 +17,16 @@
   "author": "Anthony Mugendi <ngurumugz@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "aproba": "^2.0.0",
     "dayjs": "^1.10.7",
-    "flat-cache": "^3.0.4",
-    "fs-extra": "^10.0.0"
-  }
+    "flat-cache": "^3.0.4"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mugendi/ttl-flat-cache.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mugendi/ttl-flat-cache/issues"
+  },
+  "homepage": "https://github.com/mugendi/ttl-flat-cache#readme"
 }

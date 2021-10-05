@@ -26,11 +26,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const fs = require("fs-extra"),
+const fs = require("fs"),
   os = require("os"),
   path = require("path"),
   flatCache = require("flat-cache"),
-  aproba = require("aproba"),
   dayjs = require("dayjs"),
   duration = require("dayjs/plugin/duration"),
   relativeTime = require("dayjs/plugin/relativeTime");
@@ -41,9 +40,8 @@ dayjs.extend(relativeTime);
 
 class Cache {
   constructor(options) {
-    aproba("O", arguments);
 
-    options = Object.assign({ ns: "default", ttl: 3600 }, options);
+    options = Object.assign({ ns: "default", ttl: null }, options);
 
     let { ns, dir, ttl } = options;
 
@@ -83,7 +81,6 @@ class Cache {
   }
 
   __invadidate_key(key) {
-    aproba("S", arguments);
 
     //
     let data = this.cache.getKey(key);
@@ -113,13 +110,11 @@ class Cache {
       }
     }
 
-    console.log(data);
-
     return data;
   }
 
   get(key) {
-    aproba("S", arguments);
+    
     this.__invadidate_key(key);
 
     let data = this.cache.getKey(key);
@@ -132,21 +127,20 @@ class Cache {
   }
 
   del(key) {
-    aproba("S", arguments);
+    
     return this.cache.removeKey(key);
   }
 
   ttl(key) {
-    aproba("S", arguments);
     return { key, expires: this.__invadidate_key(key) };
   }
 
   set(key, value, ttl) {
-    aproba("S*N|S*", arguments);
 
     let self = this;
 
-    ttl = ttl || this.defaultTTL;
+    ttl = to_num(ttl);
+    ttl =  ttl || to_num(this.defaultTTL);
 
     let data = {
       expires: ttl ? dayjs().add(ttl, "seconds").toDate() : null,
@@ -156,9 +150,12 @@ class Cache {
     self.cache.setKey(key, data);
 
     return self.cache.save();
-
-    console.log({ key, value, ttl });
   }
+}
+
+
+function to_num(val){
+  return !isNaN(Number(val)) ? Number(val) : 0 ;
 }
 
 module.exports = (options = {}) => new Cache(options);
